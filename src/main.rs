@@ -7,15 +7,13 @@ fn main() {
     // dbg!(args);   // print args, remove to add refs below as dbg! owns args
 
     let config = Config::build(&args).unwrap_or_else(|err| { // use the Err from Result here in a closure
-        println!("Exiting on {err}");  // constructor
+        eprintln!("Exiting on {err}");  // constructor, eprintln! to print err to stderr
         process::exit(1);
     });
-    // save refs in variables, [0] is the program name
-    println!("Searching for {}", config.query);
-    println!("In file {}", config.file_path);
+    // save refs in variables, [0] is the program nameS
 
     if let Err(e) = minigrep::run(config) {  // if fs::read_to_string returns its ? std error, this is handled (propogated) by main
-        println!("Encounterted error: {e}");
+        eprintln!("Encounterted error: {e}");
         process::exit(1);
     }
 
