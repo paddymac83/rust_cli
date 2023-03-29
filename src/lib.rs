@@ -28,12 +28,17 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {  // 'static means it lifetime throughout function
-        if args.len() < 3 {
-            return Err("Not enough arguments");
-        }
-        let query = args[1].clone();                  // this is a clone as args is owned in main()
-        let file_path = args[2].clone();
+    pub fn build(mut args: impl Iterator<Item=String>) -> Result<Config, &'static str> {  // 'static means it lifetime throughout function
+        args.next();  // as first part is prog name
+
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("didnt get query string"),
+        };                  // this is a clone as args is owned in main()
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("didnt get file path"),
+        }; 
 
         let ignore_case = env::var("IGNORE_CASE").is_ok();  // Result Ok is env var exists, false if not
     
@@ -42,24 +47,17 @@ impl Config {
 }
 
 pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {  // line returned references the contents and is valid as long as contents is
-    let mut results = Vec::new();
-    for line in contents.lines() {  // returns an iterator
-            if line.contains(query) {
-                results.push(line);
-            }
-    }
-    results
+    contents
+    .lines()
+    .filter(|line| line.contains(query))   // filter lines with query and collect into vector  
+    .collect()
 }
 
 pub fn search_case_insensitive<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {  // line returned references the contents and is valid as long as contents is
-    let mut results = Vec::new();
-    let query = query.to_lowercase();  // convert to lower case using to_lowercase
-    for line in contents.lines() {  // returns an iterator
-            if line.to_lowercase().contains(&query) {
-                results.push(line);
-            }
-    }
-    results
+    contents
+    .lines()
+    .filter(|line| line.contains(query))   // filter lines with query and collect into vector  
+    .collect()
 }
 
 // add tests mod in lib.rs

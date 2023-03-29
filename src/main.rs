@@ -3,10 +3,9 @@ use std::process;
 use minigrep::Config; // bring struct into scope of this bin crate (from lib.rs)
 
 fn main() {
-    let args: Vec<String> = env::args().collect();  // convert itr to collection
-    // dbg!(args);   // print args, remove to add refs below as dbg! owns args
+    // env::args() calls as itr which we can pass direct to build rather than a slice
 
-    let config = Config::build(&args).unwrap_or_else(|err| { // use the Err from Result here in a closure
+    let config = Config::build(env::args()).unwrap_or_else(|err| { // use the Err from Result here in a closure
         eprintln!("Exiting on {err}");  // constructor, eprintln! to print err to stderr
         process::exit(1);
     });
